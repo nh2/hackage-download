@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import multiprocessing
 import subprocess
 
 # CLI arguments.
@@ -42,7 +43,8 @@ subprocess.run(xargs, shell=True, check=False)
 
 # Unpack.
 
-unpack = "find . -name '*.tar.gz' | xargs -P$(nproc) -I '{}' sh -c 'echo {}; tar -xf {}; rm -f {}'"
+num_cpus = multiprocessing.cpu_count()
+unpack = "find . -name '*.tar.gz' | xargs -P" + str(num_cpus) + " -I '{}' sh -c 'echo {}; tar -xf {}; rm -f {}'"
 print(unpack)
 # check=False because some tars extract only with errors (e.g. "gzip: stdin: decompression OK, trailing garbage ignored")
 subprocess.run(unpack, shell=True, check=False)
