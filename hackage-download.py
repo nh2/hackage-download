@@ -2,6 +2,7 @@
 import argparse
 import multiprocessing
 import subprocess
+import sys
 
 # CLI arguments.
 
@@ -10,6 +11,19 @@ selection_group = parser.add_mutually_exclusive_group(required=True)
 selection_group.add_argument('--latest', action='store_true', help='Download only latest package versions, instead of all versions')
 selection_group.add_argument('--all', action='store_true', help='Download only latest package versions, instead of all versions')
 args = parser.parse_args()
+
+# Check for required software
+
+def check_program(name, args=["--version"]):
+  try:
+    ret = subprocess.run([name] + args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False).returncode
+    if ret != 0:
+      sys.exit(name + " is required; executable was found but it didn't behave as expected")
+  except FileNotFoundError as e:
+      sys.exit(name + " is required")
+
+for prog in ["cabal", "xargs", "wget", "find", "tar"]:
+  check_program(prog)
 
 # Get list of available packages.
 
